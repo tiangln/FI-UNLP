@@ -1,0 +1,110 @@
+programa ejercicio2
+procesos
+  proceso juntarFlores(ES flores: numero)
+  comenzar
+    mientras HayFlorEnLaEsquina
+      tomarFlor
+      flores:= flores + 1 
+  fin
+  proceso sincBarrera(E id: numero)
+  variables
+    ok: boolean
+  comenzar
+    si id = 1
+      EnviarMensaje(V,r2)
+      EnviarMensaje(V,r3)
+      RecibirMensaje(ok,r2)
+      RecibirMensaje(ok,r3)
+    sino
+      si id = 2
+        EnviarMensaje(V,r1)
+        EnviarMensaje(V,r3)
+        RecibirMensaje(ok,r1)
+        RecibirMensaje(ok,r3)
+      sino
+        EnviarMensaje(V,r1)
+        EnviarMensaje(V,r2)
+        RecibirMensaje(ok,r1)
+        RecibirMensaje(ok,r2)
+  fin
+  proceso depositar(E flores: numero)
+  variables
+    avIni,caIni: numero
+  comenzar
+    avIni:= PosAv
+    caIni:= PosCa
+    repetir flores
+      BloquearEsquina(50,50)
+      Pos(50,50)
+      depositarFlor
+      Pos(avIni,caIni)
+      LiberarEsquina(50,50)
+  fin
+  proceso etapa(E id: numero; ES flores: numero; ES esquinas: numero)
+  comenzar
+    mientras (PosAv < 100) & (esquinas < 10)
+      juntarFlores(flores)
+      mover
+      esquinas:= esquinas + 1
+    si esquinas = 10
+      depositar(flores)
+      sincBarrera(id)
+  fin
+areas
+  depo:AreaC(50,50,50,50)
+  area1:AreaP(1,1,100,1)
+  area2:AreaP(1,2,100,2)
+  area3:AreaP(1,3,100,3)
+  area4:AreaP(1,4,1,4)
+robots
+  robot recolector
+  variables
+    flores: numero
+    esquinas: numero
+    id: numero
+  comenzar
+    derecha
+    RecibirMensaje(id,fi)
+    mientras PosAv < 100
+      flores:= 0
+      esquinas:= 0
+      etapa(id,flores,esquinas)
+    juntarFlores(flores)
+    depositar(flores)
+    sincBarrera(id)
+    EnviarMensaje(V,fi)
+  fin
+  robot fiscalizador
+  variables
+    ok: boolean
+    total: numero
+  comenzar
+    total:= 0
+    EnviarMensaje(1,r1)
+    EnviarMensaje(2,r2)
+    EnviarMensaje(3,r3)
+    repetir 3
+      RecibirMensaje(ok,*)
+    Pos(50,50)
+    juntarFlores(total)
+    Informar(total)
+  fin
+variables
+  r1: recolector
+  r2: recolector
+  r3: recolector
+  fi: fiscalizador
+comenzar
+  AsignarArea(r1,depo)
+  AsignarArea(r2,depo)
+  AsignarArea(r3,depo)
+  AsignarArea(fi,depo)
+  AsignarArea(r1,area1)
+  AsignarArea(r2,area2)
+  AsignarArea(r3,area3)
+  AsignarArea(fi,area4)
+  Iniciar(r1,1,1)
+  Iniciar(r2,1,2)
+  Iniciar(r3,1,3)
+  Iniciar(fi,1,4)
+fin

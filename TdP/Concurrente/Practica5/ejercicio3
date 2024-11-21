@@ -1,0 +1,102 @@
+programa ejercicio3
+procesos
+  proceso depositar(E flores: numero)
+  variables
+    avIni,caIni: numero
+  comenzar
+    avIni:= PosAv
+    caIni:= PosCa
+    repetir flores
+      BloquearEsquina(10,10)
+      Pos(10,10)
+      depositarFlor
+      Pos(avIni,caIni)
+      LiberarEsquina(10,10)
+  fin
+  proceso recorrerYjuntar(ES flores: numero; ES esquinas: numero)
+  comenzar
+    mientras (esquinas < 5) & (flores < 10) & (PosAv < 30)
+      mientras HayFlorEnLaEsquina & (esquinas < 5) & (flores < 10)
+        tomarFlor
+        flores:= flores + 1
+      si ~HayFlorEnLaEsquina & (PosAv < 30)
+        mover
+        esquinas:= esquinas + 1
+  fin
+areas
+  ciudad: AreaC (1,1,100,100)
+robots
+  robot recolector
+  variables
+    flores: numero
+    esquinas: numero
+    id: numero
+  comenzar
+    derecha
+    RecibirMensaje(id,c1)
+    mientras PosAv < 30
+      flores:= 0
+      esquinas:=0
+      recorrerYjuntar(flores,esquinas)
+      si (flores = 10) | (esquinas = 5)
+        depositar(flores)
+        EnviarMensaje(id,c1)
+        EnviarMensaje(V,c1)
+        EnviarMensaje(flores,c1)
+    EnviarMensaje(id,c1)
+    EnviarMensaje(F,c1)
+  fin
+  robot cosechador
+  variables
+    ok1,ok2: boolean
+    id: numero
+    avIni,caIni: numero
+    sigo: boolean
+    flores,total: numero
+  comenzar
+    total:= 0
+    sigo:= V
+    avIni:= PosAv
+    caIni:= PosCa
+    EnviarMensaje(1,r1)
+    EnviarMensaje(2,r2)
+    mientras sigo
+      RecibirMensaje(id,*)
+      si(id=1)
+        RecibirMensaje(ok1,r1)
+        si ok1
+          RecibirMensaje(flores,r1)
+          total:= total + flores
+          repetir flores
+            BloquearEsquina(10,10)
+            Pos(10,10)
+            tomarFlor
+            Pos(avIni,caIni)
+            LiberarEsquina(10,10)
+      sino
+        RecibirMensaje(ok2,r2)
+        si (ok2)
+          RecibirMensaje(flores,r2)
+          total:= total + flores
+          repetir flores
+            BloquearEsquina(10,10)
+            Pos(10,10)
+            tomarFlor
+            Pos(avIni,caIni)
+            LiberarEsquina(10,10)
+      si ~(ok1|ok2)
+        sigo:= F
+    Informar(total)    
+  fin
+variables
+  r1: recolector
+  r2: recolector
+  c1: cosechador
+comenzar
+  AsignarArea(r1, ciudad)
+  AsignarArea(r2, ciudad)
+  AsignarArea(c1, ciudad)
+  Iniciar(r1, 1,3)
+  Iniciar(r2, 1,4)
+  Iniciar(c1, 1,5)
+fin
